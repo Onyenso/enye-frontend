@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!--Bootstrap CSS CDN-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+        <link rel="icon" href="enye-africa.jpg">
+        <!--React-->
+        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+        <!--React DOM-->
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+        <!--Babel-->
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <title>Enye Front-end Challenge</title>
+    </head>
+    <body>
+        
+        <div id="app" />
+
+        <script type="text/babel">
+
+        // This <Navbar /> component is just for asthetics, it doesn't add functionality
+        class NavBar extends React.Component {
+
+            render() {
+                const navStyle = {height: "80px"}
+                return (
+                    <nav className="navbar navbar-expand-md navbar-light bg-light mb-4" style={navStyle}>
+                        <div className="container-fluid">
+                            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                                <span className="navbar-toggler-icon"></span>
+                            </button>
+                            <a className="navbar-brand" target="blank" href="http://www.enye.tech/apply/">
+                                <img src="Enye-logo.png" alt="" width="150" height="80" />
+                            </a>
+                        </div>
+                    </nav>
+                );
+            }
+        }
+
+        class PersonRow extends React.Component {
+
+            render() {
+                const person = this.props.person; // This person is a single person in the API Profile schema
+
+                return (
+                    <tr>
+                        <th scope="row">{person.id + 1}</th>
+                        <td>{person.FirstName}</td>
+                        <td>{person.LastName}</td>
+                        <td>{person.Gender}</td>
+                        <td>{person.Latitude}</td>
+                        <td>{person.Longitude}</td>
+                        <td>{person.CreditCardNumber}</td>
+                        <td>{person.CreditCardType}</td>
+                        <td>{person.Email}</td>
+                        <td>{person.DomainName}</td>
+                        <td>{person.PhoneNumber}</td>
+                        <td>{person.MacAddress}</td>
+                        <td>{person.URL}</td>
+                        <td>{person.UserName}</td>
+                        <td>{person.LastLogin}</td>
+                        <td>{person.PaymentMethod}</td>
+                    </tr>
+                );
+            }
+        }
+
+        class PeopleTable extends React.Component {
+            render() {
+                // These props are from <App/> Component
+                const filterText = this.props.filterText;
+                var inGenderFemale = this.props.inGenderFemale;
+                var inGenderMale = this.props.inGenderMale;
+                var inPrefer = this.props.inPrefer;
+                var creditCardCheck = this.props.creditCardCheck
+                const people = this.props.people; // Entire profiles API
+
+                const rows = []; // An array of rows
+
+                // For each person in the profiles API
+                people.forEach((person) => {
+
+                    // If the typed string.lower() is not in the persons name.lower(): do nothing
+                    if (person.FirstName.toLowerCase().indexOf(filterText.toLowerCase()) === -1 &&
+                        person.LastName.toLowerCase().indexOf(filterText.toLowerCase()) === -1) {
+                        return;
+                    }
+                    // If "Male" or "Female" or "Prefer" filter is chosen, but person is none of them: do nothing
+                    if ((inGenderMale && person.Gender != "Male") || (inGenderFemale && person.Gender != "Female") ||
+                        (inPrefer && person.Gender != "Prefer to skip") || (creditCardCheck && person.CreditCardType != "American Express")) {
+                        return;
+                    }
+
+                    // Add person to rows
+                    rows.push(<PersonRow person={person} key={people.indexOf(person)} />);
+
+                });
+
+                const tableStyle = {borderRadius: "20px"};
+
+                return (
+
+                    <div className="table-responsive mt-4" style={tableStyle}>
+                        <table className="table table-dark table-striped table-hover table-bordered">
+                            <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">First Name</th>
+                                <th scope="col">Last Name</th>
+                                <th scope="col">Gender</th>
+                                <th scope="col">Latitude</th>
+                                <th scope="col">Longitude</th>
+                                <th scope="col">Credit Card Number</th>
+                                <th scope="col">Credit Card Type</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Domain Name</th>
+                                <th scope="col">Phone Number</th>
+                                <th scope="col">Mac Address</th>
+                                <th scope="col">URL</th>
+                                <th scope="col">Username</th>
+                                <th scope="col">Last Login</th>
+                                <th scope="col">Payment Method</th>
+                            </tr>
+                            </thead>
+                            <tbody>{rows}</tbody>
+                        </table>
+                    </div>
+                    
+                );
+            }
+        }
+
+        class SearchBar extends React.Component {
+
+            handleFilterTextChange = (event) => {
+                this.props.onFilterTextChange(event.target.value); // Get event handler from <App/> Component
+            }
+
+            handleCreditCardChange = (event) => {
+                this.props.handleCreditCardChange(event.target); // Get event handler from <App/> Component
+            }
+
+            handleGenderChange = (event) => {
+                this.props.handleGenderChange(event.target); // Get event handler from <App/> Component
+            }
+
+            render() {
+
+                const helpText = {fontSize: "12px"}
+
+                return (
+                    <div>
+                        <form className="form-group">
+                            <input className="form-control" type="search" placeholder="Search by First or Last Name" value={this.props.filterText} onChange={this.handleFilterTextChange} />
+                            <div>
+                                Filter by gender
+                                <div style={helpText} className="text-muted">Choose one filter at a time in this category</div>
+                            </div>
+                            <div className="form-check ms-4">
+                                <input className="form-check-input" type="checkbox" value="Male" id="flexCheckDefault1" checked={this.props.inGenderMale} onChange={this.handleGenderChange} />
+                                <label className="form-check-label" for="flexCheckDefault1">
+                                    Male
+                                </label>
+                            </div>
+                            <div className="form-check ms-4">
+                                <input className="form-check-input" type="checkbox" value="Female" id="flexCheckDefault2" checked={this.props.inGenderFemale} onChange={this.handleGenderChange} />
+                                <label className="form-check-label" for="flexCheckDefault2">
+                                    Female
+                                </label>
+                            </div>
+                            <div className="form-check ms-4">
+                                <input className="form-check-input" type="checkbox" value="Prefer to skip" id="flexCheckDefault3" checked={this.props.inPrefer} onChange={this.handleGenderChange} />
+                                <label className="form-check-label" for="flexCheckDefault3">
+                                    Prefer to skip
+                                </label>
+                            </div>
+                            <div>
+                                Filter by Credit Card Type
+                            </div>
+                            <div className="form-check ms-4">
+                                <input className="form-check-input" type="checkbox" value="American Express" id="flexCheckDefault4" checked={this.props.creditCardCheck} onChange={this.handleCreditCardChange} />
+                                <label className="form-check-label" for="flexCheckDefault4">
+                                    American Express
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                );
+            }
+        }
+
+        class Pagination extends React.Component {
+            // Function for pagination click
+            onPaginate = (event) => {
+                this.props.paginate(parseInt(event.target.innerHTML));
+            }
+
+            render() {
+
+                let people_per_page = this.props.people_per_page;
+                let total_people = this.props.total_people;
+
+                const page_numbers = [];
+
+                for (let i = 1; i <= Math.ceil(total_people / people_per_page); i++)
+                {
+                    page_numbers.push(i);
+                }
+
+                return (
+                    <nav>
+                        <ul className="pagination">
+                            {page_numbers.map((number) => (
+                                <li key={number} className="page-item"><a href="#" onClick={this.onPaginate} className="page-link">{number}</a></li>
+                            ))}
+                        </ul>
+                    </nav>
+                );
+            }
+        }
+
+        class App extends React.Component {
+
+            constructor(props) {
+                super(props);
+                this.state = {
+                    filterText: '',
+                    creditCardCheck: false,
+                    femaleCheck: false,
+                    maleCheck: false,
+                    preferCheck: false,
+                    current_page: 1,
+                    people_per_page: 20,
+                    error: null,
+                    isLoaded: false,
+                    people: []
+                    
+                };
+            }
+            // Function to run each time this <App /> is rendered
+            componentDidMount() {
+                fetch("https://api.enye.tech/v1/challenge/records") // Get API
+                .then(res => res.json())
+                .then(
+                    (result) => {
+                    this.setState({
+                        isLoaded: true,
+                        people: result.records.profiles
+                    });
+                    },
+                    // Note: it's important to handle errors here
+                    // instead of a catch() block so that we don't swallow
+                    // exceptions from actual bugs in components.
+                    (error) => {
+                    this.setState({
+                        isLoaded: true,
+                        error
+                    });
+                    }
+                )
+            }
+            // Function for change in search box
+            handleFilterTextChange = (filterText) => {
+                this.setState({
+                filterText: filterText
+                });
+            }
+            // Function for credit card checkbox
+            handleCreditCardChange = (target) => {
+                this.setState({
+                    creditCardCheck: target.checked
+                });
+            }
+            // Function for gender checkboxes
+            handleGenderChange = (target) => {
+                if (target.value === "Male")
+                {
+                    this.setState({
+                    maleCheck: target.checked
+                    });
+                }
+                if (target.value === "Female")
+                {
+                    this.setState({
+                    femaleCheck: target.checked
+                    });
+                }
+                if (target.value === "Prefer to skip")
+                {
+                    this.setState({
+                    preferCheck: target.checked
+                    });
+                }
+            }
+
+            paginate = (page_number) => {
+                this.setState({
+                    current_page: page_number,
+                })
+            }
+
+            render() {
+                const { error, isLoaded, people } = this.state;
+                const indexOfLastPerson = this.state.current_page * this.state.people_per_page;
+                const indexOfFirstPerson = indexOfLastPerson - this.state.people_per_page;
+                const current_people = this.state.people.slice(indexOfFirstPerson, indexOfLastPerson);
+
+                if (error) {
+                    return <div>Error: {error.message}</div>;
+                }
+                else if (!isLoaded) {
+                    return <div>Loading...</div>;
+                }
+                else {
+
+                    for (let i = 0; i < people.length; i++ )
+                    {
+                        this.state.people[i]["id"] = i
+                    }
+
+                    return (
+                        <div>
+                            <NavBar />
+                            <div className="container">
+                                <SearchBar
+                                filterText={this.state.filterText}
+                                onFilterTextChange={this.handleFilterTextChange}
+                                inGenderMale={this.state.maleCheck}
+                                inGenderFemale={this.state.femaleCheck}
+                                inPrefer={this.state.preferCheck}
+                                handleGenderChange={this.handleGenderChange}
+                                creditCardCheck={this.state.creditCardCheck}
+                                handleCreditCardChange={this.handleCreditCardChange}
+                                />
+
+                                <PeopleTable
+                                people={current_people}
+                                indexOfFirstPerson={indexOfFirstPerson}
+                                indexOfLastPerson={indexOfLastPerson}
+                                filterText={this.state.filterText}
+                                inGenderMale={this.state.maleCheck}
+                                inGenderFemale={this.state.femaleCheck}
+                                inPrefer={this.state.preferCheck}
+                                creditCardCheck={this.state.creditCardCheck}
+                                />
+
+                                <Pagination
+                                people_per_page={this.state.people_per_page}
+                                total_people={this.state.people.length}
+                                paginate={this.paginate}
+                                />
+                            </div>
+                        </div>
+                    );
+                }
+            }
+        }
+
+        ReactDOM.render(<App />, document.getElementById('app'));
+
+        </script>
+    </body>
+</html>
+
+
