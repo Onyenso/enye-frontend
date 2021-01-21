@@ -47,7 +47,7 @@
         class PersonRow extends React.Component {
 
             render() {
-                const person = this.props.person; // This person is a single person in the API Profile schema
+                const person = this.props.person; // This person is a single person from the API Profile schema
 
                 return (
                     <tr>
@@ -79,7 +79,8 @@
                 var inGenderFemale = this.props.inGenderFemale;
                 var inGenderMale = this.props.inGenderMale;
                 var inPrefer = this.props.inPrefer;
-                var creditCardCheck = this.props.creditCardCheck
+                var creditCardAmericanCheck = this.props.creditCardAmericanCheck
+                var creditCardMasterCheck = this.props.creditCardMasterCheck
                 const people = this.props.people; // Entire profiles API
 
                 const rows = []; // An array of rows
@@ -94,8 +95,13 @@
                     }
                     // If "Male" or "Female" or "Prefer" filter is chosen, but person is none of them: do nothing
                     if ((inGenderMale && person.Gender != "Male") || (inGenderFemale && person.Gender != "Female") ||
-                        (inPrefer && person.Gender != "Prefer to skip") || (creditCardCheck && person.CreditCardType != "American Express")) {
+                        (inPrefer && person.Gender != "Prefer to skip")) {
                         return;
+                    }
+                    // If "American Express" or "Master Card" filter is chosen, but person is none of them: do nothing
+                    if ((creditCardAmericanCheck && person.CreditCardType != "American Express") ||
+                        (creditCardMasterCheck && person.CreditCardType != "MasterCard")) {
+                            return;
                     }
 
                     // Add person to rows
@@ -161,7 +167,7 @@
                             <input className="form-control" type="search" placeholder="Search by First or Last Name" value={this.props.filterText} onChange={this.handleFilterTextChange} />
                             <div>
                                 Filter by gender
-                                <div style={helpText} className="text-muted">Choose one filter at a time in this category</div>
+                                <div style={helpText} className="text-muted">ⓘ Choose one filter at a time in this category</div>
                             </div>
                             <div className="form-check ms-4">
                                 <input className="form-check-input" type="checkbox" value="Male" id="flexCheckDefault1" checked={this.props.inGenderMale} onChange={this.handleGenderChange} />
@@ -183,11 +189,18 @@
                             </div>
                             <div>
                                 Filter by Credit Card Type
+                                <div style={helpText} className="text-muted">ⓘ Choose one filter at a time in this category</div>
                             </div>
                             <div className="form-check ms-4">
-                                <input className="form-check-input" type="checkbox" value="American Express" id="flexCheckDefault4" checked={this.props.creditCardCheck} onChange={this.handleCreditCardChange} />
+                                <input className="form-check-input" type="checkbox" value="American Express" id="flexCheckDefault4" checked={this.props.creditCardAmericanCheck} onChange={this.handleCreditCardChange} />
                                 <label className="form-check-label" for="flexCheckDefault4">
                                     American Express
+                                </label>
+                            </div>
+                            <div className="form-check ms-4">
+                                <input className="form-check-input" type="checkbox" value="MasterCard" id="flexCheckDefault5" checked={this.props.creditCardMasterCheck} onChange={this.handleCreditCardChange} />
+                                <label className="form-check-label" for="flexCheckDefault5">
+                                    MasterCard
                                 </label>
                             </div>
                         </form>
@@ -232,7 +245,8 @@
                 super(props);
                 this.state = {
                     filterText: '',
-                    creditCardCheck: false,
+                    creditCardAmericanCheck: false,
+                    creditCardMasterCheck: false,
                     femaleCheck: false,
                     maleCheck: false,
                     preferCheck: false,
@@ -244,7 +258,7 @@
                     
                 };
             }
-            // Function to run each time this <App /> is rendered
+            // Function to run each time this <App /> component is rendered
             componentDidMount() {
                 fetch("https://api.enye.tech/v1/challenge/records") // Get API
                 .then(res => res.json())
@@ -272,11 +286,21 @@
                 filterText: filterText
                 });
             }
-            // Function for credit card checkbox
+            // Function for credit card checkboxs
             handleCreditCardChange = (target) => {
-                this.setState({
-                    creditCardCheck: target.checked
-                });
+                if (target.value === "American Express")
+                {
+                    this.setState({
+                    creditCardAmericanCheck: target.checked
+                    });
+                }
+                if (target.value === "MasterCard")
+                {
+                    this.setState({
+                    creditCardMasterCheck: target.checked
+                    });
+                }
+                
             }
             // Function for gender checkboxes
             handleGenderChange = (target) => {
@@ -336,7 +360,8 @@
                                 inGenderFemale={this.state.femaleCheck}
                                 inPrefer={this.state.preferCheck}
                                 handleGenderChange={this.handleGenderChange}
-                                creditCardCheck={this.state.creditCardCheck}
+                                creditCardAmericanCheck={this.state.creditCardAmericanCheck}
+                                creditCardMasterCheck={this.state.creditCardMasterCheck}
                                 handleCreditCardChange={this.handleCreditCardChange}
                                 />
 
@@ -348,7 +373,8 @@
                                 inGenderMale={this.state.maleCheck}
                                 inGenderFemale={this.state.femaleCheck}
                                 inPrefer={this.state.preferCheck}
-                                creditCardCheck={this.state.creditCardCheck}
+                                creditCardAmericanCheck={this.state.creditCardAmericanCheck}
+                                creditCardMasterCheck={this.state.creditCardMasterCheck}
                                 />
 
                                 <Pagination
